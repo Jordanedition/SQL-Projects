@@ -14,3 +14,9 @@ The analysis is built on four relational tables, allowing for complex joins betw
 
 **NBA_TEAMS:** League-wide team data
 
+📈 **Analytical Deep Dives**
+
+**Performance Under Pressure Business Case:** Which players should a team target for end-of-game scenarios?
+
+This query isolates Clutch Games and analyzes player impact and efficiency specifically within those high-stakes windows.
+
