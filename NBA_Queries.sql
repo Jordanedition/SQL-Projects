@@ -27,7 +27,7 @@ GROUP BY p.full_name
 HAVING SUM(pg.MIN) > 500
 ORDER BY impact_per_game DESC;
 
-#Player Consistency over 20 Games
+#Scoring Range 
 SELECT 
     p.full_name,
     AVG(pg.PTS * 1.0) AS avg_pts,
