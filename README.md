@@ -1,4 +1,4 @@
-🏀 **Project Overview**
+# 🏀Project Overview
 
 This project leverages a relational database of NBA game logs to extract actionable insights regarding player value, team performance, and winning indicators. This analysis uses SQL to identify winning factors that correlate most strongly with team success and player efficiency.
 
