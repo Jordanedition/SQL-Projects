@@ -20,3 +20,10 @@ The analysis is built on four relational tables, allowing for complex joins betw
 
 This query isolates Clutch Games and analyzes player impact and efficiency specifically within those high-stakes windows.
 
+**Impact Analysis Business Case:** Identifying players whose impact is hidden by low minutes.
+
+This query normalizes impact to a standard 48-minute game to find rotation players with elite efficiency.
+
+**Scoring Range Business Case**
+
+Developed a Player Archetype framework using scoring variance (Max-Min) to assist in roster risk assessment and rotation reliability analysis.
