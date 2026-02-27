@@ -1,44 +1,42 @@
-#Performance Under Pressure
-SELECT 
+#Top Contributors 
+SELECT
     p.full_name,
-    COUNT(pg.Game_ID) AS clutch_games,
-    AVG(pg.PLUS_MINUS * 1.0) AS avg_clutch_impact
-FROM NBA_PLAYER_GAMES pg
-JOIN NBA_PLAYERS p ON pg.Player_ID = p.id
-WHERE pg.Game_ID IN (
-    SELECT g1.Game_ID
-    FROM NBA_GAMES g1
-    JOIN NBA_GAMES g2 ON g1.Game_ID = g2.Game_ID 
-    WHERE g1.Team_ID <> g2.Team_ID 
-    AND (g1.PTS - g2.PTS) BETWEEN -5 AND 5
-)
+    COUNT(DISTINCT pg.game_id)   AS games_played,
+    ROUND(AVG(pg.pts), 2)        AS avg_points,
+    ROUND(AVG(pg.reb), 2)        AS avg_rebounds,
+    ROUND(AVG(pg.ast), 2)        AS avg_assists,
+    ROUND(AVG(pg.stl), 2)        AS avg_steals,
+    ROUND(AVG(pg.blk), 2)        AS avg_blocks,
+    ROUND(AVG(pg.min), 2)        AS avg_minutes
+FROM nba_player_games pg
+JOIN nba_players p
+    ON pg.player_id = p.id
+WHERE pg.matchup LIKE 'PHX%'
 GROUP BY p.full_name
-HAVING COUNT(pg.Game_ID) >= 5
-ORDER BY avg_clutch_impact DESC;
+HAVING COUNT(DISTINCT pg.game_id) >= 10
+ORDER BY avg_points DESC;
 
-#Impact Analysis
-SELECT 
+#Points vs Impact
+SELECT
     p.full_name,
-    SUM(pg.MIN) AS total_minutes,
-    SUM(pg.PLUS_MINUS) * 48.0 / SUM(pg.MIN) AS impact_per_game
-FROM NBA_PLAYER_GAMES pg
-JOIN NBA_PLAYERS p ON pg.Player_ID = p.id
+    COUNT(DISTINCT pg.game_id)     AS games_played,
+    ROUND(AVG(pg.pts), 2)          AS avg_points,
+    ROUND(AVG(pg.plus_minus), 2)   AS avg_plus_minus,
+    ROUND(AVG(pg.reb), 2)          AS avg_rebounds,
+    ROUND(AVG(pg.ast), 2)          AS avg_assists,
+    CASE
+        WHEN AVG(pg.pts) >= 20 
+         AND AVG(pg.plus_minus) > 0 THEN 'Elite'
+        WHEN AVG(pg.pts) >= 20 
+         AND AVG(pg.plus_minus) <= 0 THEN 'High Scorer, Low Impact'
+        WHEN AVG(pg.pts) < 20 
+         AND AVG(pg.plus_minus) > 0 THEN 'Role Player, Positive Impact'
+        ELSE 'Bench'
+    END                            AS efficiency_tier
+FROM nba_player_games pg
+JOIN nba_players p
+    ON pg.player_id = p.id
+WHERE pg.matchup LIKE 'PHX%'
 GROUP BY p.full_name
-HAVING SUM(pg.MIN) > 500
-ORDER BY impact_per_game DESC;
-
-#Scoring Range 
-SELECT 
-    p.full_name,
-    AVG(pg.PTS * 1.0) AS avg_pts,
-    MAX(pg.PTS) - MIN(pg.PTS) AS scoring_range,
-    CASE 
-        WHEN (MAX(pg.PTS) - MIN(pg.PTS)) <= 12 THEN 'Consistent Floor'
-        WHEN (MAX(pg.PTS) - MIN(pg.PTS)) >= 25 THEN 'High Ceiling / Streaky'
-        ELSE 'Standard Rotation'
-    END AS player_archetype
-FROM NBA_PLAYER_GAMES pg
-JOIN NBA_PLAYERS p ON pg.Player_ID = p.id
-GROUP BY p.full_name
-HAVING COUNT(pg.Game_ID) > 20
-ORDER BY scoring_range ASC;
+HAVING COUNT(DISTINCT pg.game_id) >= 10
+ORDER BY avg_plus_minus DESC;
